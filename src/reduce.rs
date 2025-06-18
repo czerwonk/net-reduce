@@ -3,6 +3,37 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
 use prefix_trie::joint::map::JointPrefixMap;
 
+/// Reduces a list of CIDR notations and IP addresses by removing redundant entries.
+///
+/// This function takes a collection of IP addresses and CIDR blocks (both IPv4 and IPv6)
+/// and returns a minimal set where more specific entries that are already covered by
+/// broader CIDR blocks are removed.
+///
+/// # Arguments
+///
+/// * `lines` - A vector of strings containing IP addresses and/or CIDR notations.
+///             Invalid entries are silently ignored.
+///
+/// # Returns
+///
+/// A vector of strings containing the reduced set of CIDR notations. All entries
+/// are returned in CIDR format (individual IPs are converted to /32 or /128).
+///
+/// # Examples
+///
+/// ```
+/// use net_reduce::reduce::reduce_cidrs;
+///
+/// let input = vec![
+///     "192.168.0.0/16".to_string(),
+///     "192.168.1.0/24".to_string(),  // Covered by /16
+///     "192.168.1.1".to_string(),      // Covered by /16
+///     "10.0.0.0/8".to_string(),
+/// ];
+///
+/// let result = reduce_cidrs(input);
+/// assert_eq!(result.len(), 2);  // Only /16 and /8 remain
+/// ```
 pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
     build_trie(lines)
         .iter()

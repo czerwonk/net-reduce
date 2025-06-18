@@ -35,7 +35,7 @@ fn main() {
 }
 
 fn read_input(args: Cli) -> Result<Vec<String>> {
-    match args.from_file {
+    match args.file {
         Some(file) => input::from_file(&file),
         None => input::from_stdin(),
     }
