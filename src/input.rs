@@ -7,7 +7,6 @@ pub fn from_stdin() -> Result<Vec<String>> {
     read_lines(std::io::stdin().lock())
 }
 
-#[allow(dead_code)]
 pub fn from_file(path: &str) -> Result<Vec<String>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);

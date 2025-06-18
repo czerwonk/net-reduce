@@ -39,15 +39,29 @@ fn parse_to_cidr(s: &str) -> Option<IpNet> {
 
     if s.contains(":") {
         if let Ok(ip) = s.parse::<Ipv6Addr>() {
-            return Some(IpNet::V6(Ipv6Net::new(ip, 128).unwrap()));
+            return ipv6_to_ipnet(ip);
         }
     }
 
     if let Ok(ip) = s.parse::<Ipv4Addr>() {
-        return Some(IpNet::V4(Ipv4Net::new(ip, 32).unwrap()));
+        return ipv4_to_ipnet(ip);
     }
 
     None
+}
+
+fn ipv4_to_ipnet(ip: Ipv4Addr) -> Option<IpNet> {
+    match Ipv4Net::new(ip, 32) {
+        Ok(net) => Some(IpNet::V4(net)),
+        Err(_) => None,
+    }
+}
+
+fn ipv6_to_ipnet(ip: Ipv6Addr) -> Option<IpNet> {
+    match Ipv6Net::new(ip, 128) {
+        Ok(net) => Some(IpNet::V6(net)),
+        Err(_) => None,
+    }
 }
 
 #[cfg(test)]

@@ -1,6 +1,5 @@
 mod cli;
 mod input;
-mod output;
 mod reduce;
 
 use std::process::exit;
@@ -28,10 +27,8 @@ fn main() {
     };
 
     let reduced = reduce_cidrs(lines);
-
-    if let Err(e) = output::to_stdout(reduced) {
-        eprintln!("{}", e);
-        exit(ExitCode::Error as i32);
+    for line in reduced {
+        println!("{}", line);
     }
 
     exit(ExitCode::Success as i32);
