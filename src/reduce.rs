@@ -11,8 +11,7 @@ use prefix_trie::joint::map::JointPrefixMap;
 ///
 /// # Arguments
 ///
-/// * `lines` - A vector of strings containing IP addresses and/or CIDR notations.
-///             Invalid entries are silently ignored.
+/// * `lines` - A vector of strings containing IP addresses and/or CIDR notations. Invalid entries are silently ignored.
 ///
 /// # Returns
 ///
