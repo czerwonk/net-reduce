@@ -62,9 +62,11 @@ mod tests {
             "2001:678:1e0:100::/56".to_string(),
             "2001:678:1e0:110::1/128".to_string(),
             "2001:678:1e0:200::2/128".to_string(),
+            "2001:678:1e0:2xx::2/128".to_string(),
             "172.24.0.1".to_string(),
             "192.168.2.0/24".to_string(),
             "192.168.0.0/16".to_string(),
+            "192,45.3.1".to_string(),
         ];
 
         let expected = vec![
