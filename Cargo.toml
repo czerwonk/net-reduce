@@ -5,6 +5,6 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.98"
-prefix-trie = { version = "0.8.0", features = ["ipnet", "cidr"] }
+prefix-trie = { version = "0.8.1", features = ["ipnet", "cidr"] }
 clap = { version = "4.5.40", features = ["derive"] }
 ipnet = "2.11.0"
