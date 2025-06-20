@@ -34,13 +34,6 @@ use prefix_trie::joint::map::JointPrefixMap;
 /// assert_eq!(result.len(), 2);  // Only /16 and /8 remain
 /// ```
 pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
-    build_trie(lines)
-        .iter()
-        .map(|(prefix, _)| prefix.to_string())
-        .collect()
-}
-
-fn build_trie(lines: Vec<String>) -> JointPrefixMap<IpNet, bool> {
     let mut pm: JointPrefixMap<IpNet, bool> = JointPrefixMap::new();
 
     let mut prefixes: Vec<IpNet> = lines
@@ -49,15 +42,21 @@ fn build_trie(lines: Vec<String>) -> JointPrefixMap<IpNet, bool> {
         .collect();
     prefixes.sort_by_key(|p| p.prefix_len());
 
-    for prefix in prefixes {
-        if pm.get_spm_prefix(&prefix).is_some() {
-            continue;
-        }
+    prefixes
+        .iter()
+        .filter(|p| {
+            if pm.get_spm_prefix(p).is_some() {
+                return false; // already covered by a broader prefix
+            }
 
-        pm.insert(prefix, true);
-    }
+            if p.prefix_len() < p.max_prefix_len() {
+                pm.insert(**p, true);
+            }
 
-    pm
+            true
+        })
+        .map(|p| p.to_string())
+        .collect()
 }
 
 fn parse_to_cidr(s: &str) -> Option<IpNet> {
@@ -114,10 +113,10 @@ mod tests {
         ];
 
         let expected = vec![
-            "172.24.0.1/32".to_string(),
             "192.168.0.0/16".to_string(),
-            "2001:678:1e0::/64".to_string(),
+            "172.24.0.1/32".to_string(),
             "2001:678:1e0:100::/56".to_string(),
+            "2001:678:1e0::/64".to_string(),
             "2001:678:1e0:200::2/128".to_string(),
         ];
 
