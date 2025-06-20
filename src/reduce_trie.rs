@@ -15,43 +15,49 @@ pub struct ReduceTrie {
 }
 
 impl ReduceTrie {
-    fn new() -> Self {
-        ReduceTrie {
-            ipv4_root: Node::default(),
-            ipv6_root: Node::default(),
-        }
-    }
-
     /// Creates a new `ReduceTrie` with the given prefixes.
     pub fn with_prefixes(prefixes: Vec<IpNet>) -> Self {
-        let mut trie = ReduceTrie::new();
+        let (ipv4_prefixes, ipv6_prefixes): (Vec<_>, Vec<_>) = prefixes
+            .into_iter()
+            .partition(|p| matches!(p, IpNet::V4(_)));
 
-        for prefix in sort_prefixes(prefixes) {
-            trie.insert(prefix);
+        let (ipv4_root, ipv6_root) = rayon::join(
+            || Self::build_trie_for_family(ipv4_prefixes),
+            || Self::build_trie_for_family(ipv6_prefixes),
+        );
+
+        ReduceTrie {
+            ipv4_root,
+            ipv6_root,
         }
-
-        trie
     }
 
-    fn insert(&mut self, prefix: IpNet) -> bool {
-        let root = match prefix {
-            IpNet::V4(_) => &mut self.ipv4_root,
-            IpNet::V6(_) => &mut self.ipv6_root,
-        };
+    fn build_trie_for_family(prefixes: Vec<IpNet>) -> Node {
+        let mut root = Node::default();
 
+        let sorted_prefixes = sort_prefixes(prefixes);
+
+        for prefix in sorted_prefixes {
+            Self::insert_into_node(&mut root, prefix);
+        }
+
+        root
+    }
+
+    fn insert_into_node(root: &mut Node, prefix: IpNet) -> bool {
         let prefix_len = prefix.prefix_len() as usize;
-
         let mut node = root;
 
         for pos in 0..prefix_len {
             let bit = get_bit(&prefix, pos) as usize;
 
             if node.prefix.is_some() {
-                return false; // this prefix is already covered by a less specific prefix
+                // the prefix is alredy covered
+                return false;
             }
 
             if node.children[bit].is_none() {
-                node.children[bit] = Some(Box::new(Node::default()));
+                node.children[bit] = Some(Box::default());
             }
             node = node.children[bit].as_mut().unwrap();
         }
