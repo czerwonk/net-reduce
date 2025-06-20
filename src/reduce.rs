@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
+use crate::reduce_trie::ReduceTrie;
+
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
-use prefix_trie::joint::set::JointPrefixSet;
 
 /// Reduces a list of CIDR notations and IP addresses by removing redundant entries.
 ///
@@ -35,44 +35,16 @@ use prefix_trie::joint::set::JointPrefixSet;
 /// assert_eq!(result.len(), 2);  // Only /16 and /8 remain
 /// ```
 pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
-    let mut pm: JointPrefixSet<IpNet> = JointPrefixSet::new();
-
-    parse_prefixes(lines)
-        .iter()
-        .filter(|&p| {
-            if pm.get_spm(p).is_some() {
-                return false; // already covered by a broader prefix
-            }
-
-            if p.prefix_len() < p.max_prefix_len() {
-                pm.insert(*p);
-            }
-
-            true
-        })
-        .map(|p| p.to_string())
-        .collect()
-}
-
-fn parse_prefixes(lines: Vec<String>) -> Vec<IpNet> {
-    let mut grouped_prefixes = HashMap::new();
-    lines
+    let prefixes = lines
         .iter()
         .filter_map(|line| parse_to_cidr(line))
-        .for_each(|p| {
-            let key = p.prefix_len();
-            grouped_prefixes.entry(key).or_insert_with(Vec::new).push(p);
-        });
+        .collect::<Vec<IpNet>>();
 
-    let mut keys: Vec<&u8> = grouped_prefixes.keys().collect();
-    keys.sort_unstable();
-
-    let mut prefixes = Vec::new();
-    keys.iter().for_each(|&k| {
-        grouped_prefixes[k].iter().for_each(|&p| prefixes.push(p));
-    });
-
-    prefixes
+    ReduceTrie::with_prefixes(prefixes)
+        .get_all_prefixes()
+        .iter()
+        .map(|p| p.to_string())
+        .collect()
 }
 
 fn parse_to_cidr(s: &str) -> Option<IpNet> {
@@ -129,10 +101,10 @@ mod tests {
         ];
 
         let expected = vec![
-            "192.168.0.0/16".to_string(),
             "172.24.0.1/32".to_string(),
-            "2001:678:1e0:100::/56".to_string(),
+            "192.168.0.0/16".to_string(),
             "2001:678:1e0::/64".to_string(),
+            "2001:678:1e0:100::/56".to_string(),
             "2001:678:1e0:200::2/128".to_string(),
         ];
 

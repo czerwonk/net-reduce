@@ -1,6 +1,7 @@
 mod cli;
 mod input;
 mod reduce;
+mod reduce_trie;
 
 use std::process::exit;
 
