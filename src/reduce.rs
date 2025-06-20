@@ -58,7 +58,7 @@ fn parse_prefixes(lines: Vec<String>) -> Vec<IpNet> {
     let mut grouped_prefixes = HashMap::new();
     lines
         .iter()
-        .filter_map(|line| parse_to_cidr(&line))
+        .filter_map(|line| parse_to_cidr(line))
         .for_each(|p| {
             let key = p.prefix_len();
             grouped_prefixes.entry(key).or_insert_with(Vec::new).push(p);
