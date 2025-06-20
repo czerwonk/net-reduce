@@ -39,13 +39,12 @@ impl ReduceTrie {
             IpNet::V6(_) => &mut self.ipv6_root,
         };
 
-        let bits = prefix_to_bits(&prefix);
         let prefix_len = prefix.prefix_len() as usize;
 
         let mut node = root;
 
-        for b in bits.iter().take(prefix_len) {
-            let bit = *b as usize;
+        for pos in 0..prefix_len {
+            let bit = get_bit(&prefix, pos as usize) as usize;
 
             if node.prefix.is_some() {
                 return false; // this prefix is already covered by a less specific prefix
@@ -71,6 +70,23 @@ impl ReduceTrie {
         collect_prefixes(&self.ipv6_root, &mut result);
 
         result
+    }
+}
+
+fn get_bit(prefix: &IpNet, position: usize) -> u8 {
+    match prefix {
+        IpNet::V4(net) => {
+            let bytes = net.addr().octets();
+            let byte_idx = position / 8;
+            let bit_idx = 7 - (position % 8);
+            (bytes[byte_idx] >> bit_idx) & 1
+        }
+        IpNet::V6(net) => {
+            let bytes = net.addr().octets();
+            let byte_idx = position / 8;
+            let bit_idx = 7 - (position % 8);
+            (bytes[byte_idx] >> bit_idx) & 1
+        }
     }
 }
 
@@ -111,31 +127,6 @@ fn collect_prefixes(node: &Node, result: &mut Vec<IpNet>) {
     }
 }
 
-fn prefix_to_bits(prefix: &IpNet) -> Vec<u8> {
-    match prefix {
-        IpNet::V4(net) => {
-            let addr = net.addr().octets();
-            let mut bits = Vec::with_capacity(32);
-            for byte in addr {
-                for i in (0..8).rev() {
-                    bits.push((byte >> i) & 1);
-                }
-            }
-            bits
-        }
-        IpNet::V6(net) => {
-            let addr = net.addr().octets();
-            let mut bits = Vec::with_capacity(128);
-            for byte in addr {
-                for i in (0..8).rev() {
-                    bits.push((byte >> i) & 1);
-                }
-            }
-            bits
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -147,7 +138,7 @@ mod tests {
 
         assert!(trie.insert(IpNet::from_str("10.0.0.0/8").expect("valid prefix")));
         assert!(trie.insert(IpNet::from_str("fd00::/8").expect("valid prefix")));
-        assert!(trie.insert(IpNet::from_str("192.168.0.0/16").expect("valid prefix")));
+        assert!(trie.insert(IpNet::from_str("192.168.0.0/16").expect("valid prtest_reduceefix")));
         assert!(!trie.insert(IpNet::from_str("10.0.1.0/24").expect("valid prefix")));
         assert!(trie.insert(IpNet::from_str("2001:678:1e0::/48").expect("valid prefix")));
         assert!(!trie.insert(IpNet::from_str("2001:678:1e0:100::/56").expect("valid prefix")));
