@@ -44,7 +44,7 @@ impl ReduceTrie {
         let mut node = root;
 
         for pos in 0..prefix_len {
-            let bit = get_bit(&prefix, pos as usize) as usize;
+            let bit = get_bit(&prefix, pos) as usize;
 
             if node.prefix.is_some() {
                 return false; // this prefix is already covered by a less specific prefix
