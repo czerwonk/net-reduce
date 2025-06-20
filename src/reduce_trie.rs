@@ -1,5 +1,6 @@
-use ipnet::IpNet;
 use std::collections::HashMap;
+
+use ipnet::IpNet;
 
 #[derive(Default)]
 struct Node {
