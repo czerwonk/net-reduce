@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
-use prefix_trie::joint::map::JointPrefixMap;
+use prefix_trie::joint::set::JointPrefixSet;
 
 /// Reduces a list of CIDR notations and IP addresses by removing redundant entries.
 ///
@@ -35,17 +35,17 @@ use prefix_trie::joint::map::JointPrefixMap;
 /// assert_eq!(result.len(), 2);  // Only /16 and /8 remain
 /// ```
 pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
-    let mut pm: JointPrefixMap<IpNet, u8> = JointPrefixMap::new();
+    let mut pm: JointPrefixSet<IpNet> = JointPrefixSet::new();
 
     parse_prefixes(lines)
         .iter()
         .filter(|&p| {
-            if pm.get_spm_prefix(p).is_some() {
+            if pm.get_spm(p).is_some() {
                 return false; // already covered by a broader prefix
             }
 
             if p.prefix_len() < p.max_prefix_len() {
-                pm.insert(*p, 0);
+                pm.insert(*p);
             }
 
             true
