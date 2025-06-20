@@ -1,6 +1,6 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use crate::reduce_trie::ReduceTrie;
+use crate::reduce_prefix_list::ReducePrefixList;
 
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
 
@@ -40,7 +40,7 @@ pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
         .filter_map(|line| parse_to_cidr(line))
         .collect::<Vec<IpNet>>();
 
-    ReduceTrie::with_prefixes(prefixes)
+    ReducePrefixList::with_prefixes(prefixes)
         .get_all_prefixes()
         .iter()
         .map(|p| p.to_string())
@@ -101,10 +101,10 @@ mod tests {
         ];
 
         let expected = vec![
-            "172.24.0.1/32".to_string(),
             "192.168.0.0/16".to_string(),
-            "2001:678:1e0::/64".to_string(),
+            "172.24.0.1/32".to_string(),
             "2001:678:1e0:100::/56".to_string(),
+            "2001:678:1e0::/64".to_string(),
             "2001:678:1e0:200::2/128".to_string(),
         ];
 
