@@ -1,8 +1,8 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use crate::reduce_trie::ReduceTrie;
-
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
+
+use crate::reduce_trie::ReduceTrie;
 
 /// Reduces a list of CIDR notations and IP addresses by removing redundant entries.
 ///
