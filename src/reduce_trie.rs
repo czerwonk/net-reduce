@@ -73,18 +73,17 @@ impl ReduceTrie {
     }
 }
 
-fn get_bit(prefix: &IpNet, position: usize) -> u8 {
+fn get_bit(prefix: &IpNet, pos: usize) -> u8 {
+    let byte_idx = pos >> 3; // divide by 8
+    let bit_idx = 7 - (pos & 7); // modulo 8
+
     match prefix {
         IpNet::V4(net) => {
             let bytes = net.addr().octets();
-            let byte_idx = position / 8;
-            let bit_idx = 7 - (position % 8);
             (bytes[byte_idx] >> bit_idx) & 1
         }
         IpNet::V6(net) => {
             let bytes = net.addr().octets();
-            let byte_idx = position / 8;
-            let bit_idx = 7 - (position % 8);
             (bytes[byte_idx] >> bit_idx) & 1
         }
     }
@@ -95,21 +94,21 @@ fn sort_prefixes(prefixes: Vec<IpNet>) -> Vec<IpNet> {
     // large sets of prefixes. in this case we can sort by iterating over the preixes (O(n)) and
     // then sorting the keys (O(m log m)), where m is the number of unique prefix lengths.
 
-    let mut grouped_prefixes = HashMap::new();
-    prefixes.iter().for_each(|p| {
-        let key = p.prefix_len();
-        grouped_prefixes.entry(key).or_insert_with(Vec::new).push(p);
-    });
+    let mut grouped_prefixes: HashMap<u8, Vec<IpNet>> = HashMap::new();
 
-    let mut keys: Vec<&u8> = grouped_prefixes.keys().collect();
+    for p in prefixes {
+        grouped_prefixes.entry(p.prefix_len()).or_default().push(p);
+    }
+
+    let mut keys: Vec<u8> = grouped_prefixes.keys().copied().collect();
     keys.sort_unstable();
 
-    let mut prefixes = Vec::new();
-    keys.iter().for_each(|&k| {
-        grouped_prefixes[k].iter().for_each(|&p| prefixes.push(*p));
-    });
+    let mut result = Vec::new();
+    for k in keys {
+        result.extend(grouped_prefixes.remove(&k).unwrap());
+    }
 
-    prefixes
+    result
 }
 
 fn collect_prefixes(node: &Node, result: &mut Vec<IpNet>) {
