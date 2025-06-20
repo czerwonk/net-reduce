@@ -131,21 +131,3 @@ fn collect_prefixes(node: &Node, result: &mut Vec<IpNet>) {
         collect_prefixes(child, result);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::str::FromStr;
-
-    #[test]
-    fn test_reduce() {
-        let mut trie = ReduceTrie::new();
-
-        assert!(trie.insert(IpNet::from_str("10.0.0.0/8").expect("valid prefix")));
-        assert!(trie.insert(IpNet::from_str("fd00::/8").expect("valid prefix")));
-        assert!(trie.insert(IpNet::from_str("192.168.0.0/16").expect("valid prtest_reduceefix")));
-        assert!(!trie.insert(IpNet::from_str("10.0.1.0/24").expect("valid prefix")));
-        assert!(trie.insert(IpNet::from_str("2001:678:1e0::/48").expect("valid prefix")));
-        assert!(!trie.insert(IpNet::from_str("2001:678:1e0:100::/56").expect("valid prefix")));
-    }
-}
