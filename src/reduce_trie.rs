@@ -46,7 +46,7 @@ impl ReduceTrie {
             .partition(|p| p.prefix_len() < p.max_prefix_len());
 
         for prefix in net_prefixes {
-            Self::insert_into_node(&mut root, prefix);
+            Self::insert_into_tree(&mut root, prefix);
         }
 
         let hosts = host_prefixes
@@ -57,7 +57,7 @@ impl ReduceTrie {
         Table { root, hosts }
     }
 
-    fn insert_into_node(root: &mut Node, prefix: IpNet) -> bool {
+    fn insert_into_tree(root: &mut Node, prefix: IpNet) {
         let prefix_len = prefix.prefix_len() as usize;
         let mut node = root;
 
@@ -66,7 +66,7 @@ impl ReduceTrie {
 
             if node.prefix.is_some() {
                 // the prefix is alredy covered
-                return false;
+                return;
             }
 
             if node.children[bit].is_none() {
@@ -78,8 +78,6 @@ impl ReduceTrie {
         node.prefix = Some(prefix);
         node.children[0] = None;
         node.children[1] = None;
-
-        true
     }
 
     fn is_covered(root: &Node, prefix: IpNet) -> bool {
