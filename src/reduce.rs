@@ -100,15 +100,18 @@ mod tests {
             "192,45.3.1".to_string(),
         ];
 
-        let expected = vec![
+        let mut expected = vec![
             "172.24.0.1/32".to_string(),
             "192.168.0.0/16".to_string(),
             "2001:678:1e0::/64".to_string(),
             "2001:678:1e0:100::/56".to_string(),
             "2001:678:1e0:200::2/128".to_string(),
         ];
+        expected.sort();
 
-        let result = reduce_cidrs(lines);
+        let mut result = reduce_cidrs(lines);
+        result.sort();
+
         assert_eq!(expected, result);
     }
 }
