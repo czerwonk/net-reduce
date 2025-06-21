@@ -9,11 +9,11 @@
 
 rustPlatform.buildRustPackage {
   pname = "net-reduce";
-  version = "0.1.0";
+  version = "0.1.1";
 
   src = lib.cleanSource ./.;
 
-  cargoHash = "sha256-U4RAL2/4I/ovUA3/PUuxCHpLZw27fNuqlW5N/tJ0iOg=";
+  cargoHash = "sha256-THoEYPI4chc8t2ko1uGOndedilyQIQ72x40H1OETSoY=";
 
   nativeBuildInputs = [
     pkg-config
