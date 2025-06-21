@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use ipnet::IpNet;
+use rayon::prelude::*;
 
 #[derive(Default)]
 struct Node {
@@ -8,11 +9,16 @@ struct Node {
     prefix: Option<IpNet>,
 }
 
+struct Table {
+    root: Node,
+    hosts: Vec<IpNet>,
+}
+
 /// A trie structure to reduce IP prefixes. The trie only stores the less specific prefixes for
 /// each IPv4 or IPv6 address.
 pub struct ReduceTrie {
-    ipv4_root: Node,
-    ipv6_root: Node,
+    ipv4: Table,
+    ipv6: Table,
 }
 
 impl ReduceTrie {
@@ -22,30 +28,36 @@ impl ReduceTrie {
             .into_iter()
             .partition(|p| matches!(p, IpNet::V4(_)));
 
-        let (ipv4_root, ipv6_root) = rayon::join(
-            || Self::build_trie_for_family(ipv4_prefixes),
-            || Self::build_trie_for_family(ipv6_prefixes),
+        let (ipv4, ipv6) = rayon::join(
+            || Self::build_for_family(ipv4_prefixes),
+            || Self::build_for_family(ipv6_prefixes),
         );
 
-        ReduceTrie {
-            ipv4_root,
-            ipv6_root,
-        }
+        ReduceTrie { ipv4, ipv6 }
     }
 
-    fn build_trie_for_family(prefixes: Vec<IpNet>) -> Node {
+    fn build_for_family(prefixes: Vec<IpNet>) -> Table {
         let mut root = Node::default();
 
         let sorted_prefixes = sort_prefixes(prefixes);
 
-        for prefix in sorted_prefixes {
-            Self::insert_into_node(&mut root, prefix);
+        let (net_prefixes, host_prefixes): (Vec<_>, Vec<_>) = sorted_prefixes
+            .into_iter()
+            .partition(|p| p.prefix_len() < p.max_prefix_len());
+
+        for prefix in net_prefixes {
+            Self::insert_into_tree(&mut root, prefix);
         }
 
-        root
+        let hosts = host_prefixes
+            .into_par_iter()
+            .filter(|&p| !Self::is_covered(&root, p))
+            .collect();
+
+        Table { root, hosts }
     }
 
-    fn insert_into_node(root: &mut Node, prefix: IpNet) -> bool {
+    fn insert_into_tree(root: &mut Node, prefix: IpNet) {
         let prefix_len = prefix.prefix_len() as usize;
         let mut node = root;
 
@@ -54,7 +66,7 @@ impl ReduceTrie {
 
             if node.prefix.is_some() {
                 // the prefix is alredy covered
-                return false;
+                return;
             }
 
             if node.children[bit].is_none() {
@@ -66,15 +78,37 @@ impl ReduceTrie {
         node.prefix = Some(prefix);
         node.children[0] = None;
         node.children[1] = None;
+    }
 
-        true
+    fn is_covered(root: &Node, prefix: IpNet) -> bool {
+        let prefix_len = prefix.prefix_len() as usize;
+        let mut node = root;
+
+        for pos in 0..prefix_len {
+            let bit = get_bit(&prefix, pos) as usize;
+
+            if node.prefix.is_some() {
+                return true;
+            }
+
+            match &node.children[bit] {
+                Some(child) => {
+                    node = child;
+                }
+                None => return false,
+            }
+        }
+
+        false
     }
 
     pub fn get_all_prefixes(&self) -> Vec<IpNet> {
         let mut result = Vec::new();
 
-        collect_prefixes(&self.ipv4_root, &mut result);
-        collect_prefixes(&self.ipv6_root, &mut result);
+        collect_prefixes(&self.ipv4.root, &mut result);
+        collect_prefixes(&self.ipv6.root, &mut result);
+        result.extend(self.ipv4.hosts.iter());
+        result.extend(self.ipv6.hosts.iter());
 
         result
     }
