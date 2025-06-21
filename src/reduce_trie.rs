@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use ipnet::IpNet;
+use rayon::prelude::*;
 
 #[derive(Default)]
 struct Node {
@@ -48,12 +49,10 @@ impl ReduceTrie {
             Self::insert_into_node(&mut root, prefix);
         }
 
-        let mut hosts = Vec::new();
-        for host in host_prefixes {
-            if Self::find_insert_leaf(&mut root, host).is_some() {
-                hosts.push(host);
-            }
-        }
+        let hosts = host_prefixes
+            .into_par_iter()
+            .filter(|&p| !Self::is_covered(&root, p))
+            .collect();
 
         Table { root, hosts }
     }
@@ -62,20 +61,13 @@ impl ReduceTrie {
         let prefix_len = prefix.prefix_len() as usize;
         let mut node = root;
 
-        let start_pos;
-        match Self::find_insert_leaf(node, prefix) {
-            Some((n, pos)) => {
-                start_pos = pos as usize;
-                node = n;
-            }
-            None => {
-                // the prefix is already covered
+        for pos in 0..prefix_len {
+            let bit = get_bit(&prefix, pos) as usize;
+
+            if node.prefix.is_some() {
+                // the prefix is alredy covered
                 return false;
             }
-        };
-
-        for pos in start_pos..prefix_len {
-            let bit = get_bit(&prefix, pos) as usize;
 
             if node.children[bit].is_none() {
                 node.children[bit] = Some(Box::default());
@@ -90,7 +82,7 @@ impl ReduceTrie {
         true
     }
 
-    fn find_insert_leaf(root: &mut Node, prefix: IpNet) -> Option<(&mut Node, u8)> {
+    fn is_covered(root: &Node, prefix: IpNet) -> bool {
         let prefix_len = prefix.prefix_len() as usize;
         let mut node = root;
 
@@ -98,17 +90,18 @@ impl ReduceTrie {
             let bit = get_bit(&prefix, pos) as usize;
 
             if node.prefix.is_some() {
-                // the prefix is alredy covered
-                return None;
+                return true;
             }
 
-            if node.children[bit].is_none() {
-                return Some((node, pos as u8));
+            match &node.children[bit] {
+                Some(child) => {
+                    node = child;
+                }
+                None => return false,
             }
-            node = node.children[bit].as_mut().unwrap();
         }
 
-        Some((node, prefix_len as u8))
+        false
     }
 
     pub fn get_all_prefixes(&self) -> Vec<IpNet> {
