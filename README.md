@@ -10,6 +10,7 @@ This project uses the following Rust crates:
 - **[anyhow](https://crates.io/crates/anyhow)** - Flexible error handling library
 - **[clap](https://crates.io/crates/clap)** - Command line argument parser
 - **[ipnet](https://crates.io/crates/ipnet)** - IP network address manipulation
+- **[rayon](https://crates.io/crates/rayon)** - Parallel processing
 
 ## License
 (c) Daniel Brendgen-Czerwonk, 2025. Licensed under [MIT](LICENSE) license.
