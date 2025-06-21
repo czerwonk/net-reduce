@@ -2,6 +2,7 @@ use std::io::Write;
 
 use anyhow::{Context, Result};
 
+/// Output format specifies the formating which will be used when writing to output
 #[derive(Debug, Clone, Copy)]
 pub enum OutputFormat {
     Json,
@@ -10,6 +11,7 @@ pub enum OutputFormat {
 }
 
 impl OutputFormat {
+    /// Writes prefixes to writer using specified output format
     pub fn write<W: Write>(&self, prefixes: Vec<String>, w: W) -> Result<()> {
         match self {
             OutputFormat::Json => self.write_json(prefixes, w),
