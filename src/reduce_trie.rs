@@ -23,7 +23,7 @@ pub struct ReduceTrie {
 
 impl ReduceTrie {
     /// Creates a new `ReduceTrie` with the given prefixes.
-    pub fn with_prefixes(prefixes: Vec<IpNet>) -> Self {
+    pub fn from_prefixes(prefixes: Vec<IpNet>) -> Self {
         let (ipv4_prefixes, ipv6_prefixes): (Vec<_>, Vec<_>) = prefixes
             .into_iter()
             .partition(|p| matches!(p, IpNet::V4(_)));

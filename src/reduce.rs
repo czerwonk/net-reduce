@@ -40,7 +40,7 @@ pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
         .filter_map(|line| parse_to_cidr(line))
         .collect::<Vec<IpNet>>();
 
-    ReduceTrie::with_prefixes(prefixes)
+    ReduceTrie::from_prefixes(prefixes)
         .get_all_prefixes()
         .iter()
         .map(|p| p.to_string())
