@@ -6,7 +6,7 @@ mod reduce_trie;
 
 use std::process::exit;
 
-use crate::cli::Cli;
+use crate::cli::Args;
 use crate::reduce::reduce_cidrs;
 
 use anyhow::Result;
@@ -18,7 +18,7 @@ enum ExitCode {
 }
 
 fn main() {
-    let args = Cli::parse();
+    let args = Args::parse();
     let output_format = args.output_format;
 
     let lines: Vec<String> = match read_input(args) {
@@ -40,7 +40,7 @@ fn main() {
     exit(ExitCode::Success as i32);
 }
 
-fn read_input(args: Cli) -> Result<Vec<String>> {
+fn read_input(args: Args) -> Result<Vec<String>> {
     match args.file {
         Some(file) => input::from_file(&file),
         None => input::from_stdin(),
