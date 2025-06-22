@@ -3,10 +3,10 @@ use clap::Parser;
 use crate::output_format::OutputFormat;
 
 #[derive(Parser)]
-#[command(version)]
-#[command(name = "net-reduce")]
-#[command(author = "Daniel Brendgen-Czerwonk")]
 #[command(
+    version,
+    name = "net-reduce",
+    author = "Daniel Brendgen-Czerwonk",
     about = "Simple tool for reducing (removing more specifics) CIDR/IP addresses from standard input"
 )]
 /// Command-line interface configuration for the net-reduce tool.
