@@ -1,13 +1,11 @@
 mod cli;
 mod input;
 mod output_format;
-mod reduce;
-mod reduce_trie;
 
 use std::process::exit;
 
 use crate::cli::Args;
-use crate::reduce::reduce_cidrs;
+use net_reduce::reduce_cidrs;
 
 use anyhow::Result;
 use clap::Parser;

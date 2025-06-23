@@ -1,7 +1,9 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
+mod parse;
+mod reduce_trie;
 
-use ipnet::{IpNet, Ipv4Net, Ipv6Net};
+use ipnet::IpNet;
 
+use crate::parse::parse_to_cidr;
 use crate::reduce_trie::ReduceTrie;
 
 /// Reduces a list of CIDR notations and IP addresses by removing redundant entries.
@@ -45,40 +47,6 @@ pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
         .iter()
         .map(|p| p.to_string())
         .collect()
-}
-
-fn parse_to_cidr(s: &str) -> Option<IpNet> {
-    let s = s.trim();
-
-    if let Ok(ip) = s.parse::<IpNet>() {
-        return Some(ip);
-    }
-
-    if s.contains(":") {
-        if let Ok(ip) = s.parse::<Ipv6Addr>() {
-            return ipv6_to_ipnet(ip);
-        }
-    }
-
-    if let Ok(ip) = s.parse::<Ipv4Addr>() {
-        return ipv4_to_ipnet(ip);
-    }
-
-    None
-}
-
-fn ipv4_to_ipnet(ip: Ipv4Addr) -> Option<IpNet> {
-    match Ipv4Net::new(ip, 32) {
-        Ok(net) => Some(IpNet::V4(net)),
-        Err(_) => None,
-    }
-}
-
-fn ipv6_to_ipnet(ip: Ipv6Addr) -> Option<IpNet> {
-    match Ipv6Net::new(ip, 128) {
-        Ok(net) => Some(IpNet::V6(net)),
-        Err(_) => None,
-    }
 }
 
 #[cfg(test)]
