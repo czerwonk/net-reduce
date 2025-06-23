@@ -38,7 +38,7 @@ impl OutputFormat {
 
     fn write_list<W: Write>(&self, prefixes: Vec<String>, mut w: W) -> Result<()> {
         for prefix in prefixes {
-            writeln!(w, "{}", prefix).unwrap();
+            writeln!(w, "{}", prefix)?;
         }
 
         Ok(())
