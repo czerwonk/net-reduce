@@ -1,9 +1,8 @@
-mod parse;
+mod cidr;
 mod reduce_trie;
 
 use ipnet::IpNet;
 
-use crate::parse::parse_to_cidr;
 use crate::reduce_trie::ReduceTrie;
 
 /// Reduces a list of CIDR notations and IP addresses by removing redundant entries.
@@ -24,7 +23,7 @@ use crate::reduce_trie::ReduceTrie;
 /// # Examples
 ///
 /// ```
-/// use net_reduce::reduce::reduce_cidrs;
+/// use net_reduce::reduce_cidrs;
 ///
 /// let input = vec![
 ///     "192.168.0.0/16".to_string(),
@@ -39,7 +38,7 @@ use crate::reduce_trie::ReduceTrie;
 pub fn reduce_cidrs(lines: Vec<String>) -> Vec<String> {
     let prefixes = lines
         .iter()
-        .filter_map(|line| parse_to_cidr(line))
+        .filter_map(|line| cidr::from_str(line))
         .collect::<Vec<IpNet>>();
 
     ReduceTrie::from_prefixes(prefixes)
