@@ -2,7 +2,7 @@ mod cli;
 mod input;
 mod output_format;
 
-use std::process::exit;
+use std::process::ExitCode;
 
 use crate::cli::Args;
 use net_reduce::reduce_cidrs;
@@ -10,12 +10,7 @@ use net_reduce::reduce_cidrs;
 use anyhow::Result;
 use clap::Parser;
 
-enum ExitCode {
-    Success = 0,
-    Error = 1,
-}
-
-fn main() {
+fn main() -> ExitCode {
     let args = Args::parse();
     let output_format = args.output_format;
 
@@ -23,19 +18,19 @@ fn main() {
         Ok(lines) => lines,
         Err(e) => {
             eprintln!("{}", e);
-            exit(ExitCode::Error as i32);
+            return ExitCode::FAILURE;
         }
     };
 
     let reduced = reduce_cidrs(lines);
-    output_format
-        .write(reduced, &mut std::io::stdout())
-        .unwrap_or_else(|e| {
-            eprintln!("{}", e);
-            exit(ExitCode::Error as i32);
-        });
 
-    exit(ExitCode::Success as i32);
+    let w = std::io::stdout();
+    if let Err(e) = output_format.write(reduced, w) {
+        eprintln!("{}", e);
+        return ExitCode::FAILURE;
+    }
+
+    ExitCode::SUCCESS
 }
 
 fn read_input(args: Args) -> Result<Vec<String>> {
