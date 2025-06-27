@@ -90,20 +90,17 @@ fn test_cli_yaml_output_format() {
 
 #[test]
 fn test_cli_with_file_input() {
-    // Create a temporary test file
-    use std::fs;
     use std::io::Write;
+    use tempfile::NamedTempFile;
 
-    let test_file = "/tmp/test_cidrs.txt";
-    let mut file = fs::File::create(test_file).expect("Failed to create test file");
-    writeln!(file, "192.168.0.0/16").unwrap();
-    writeln!(file, "192.168.1.0/24").unwrap();
-    writeln!(file, "192.168.1.1").unwrap();
+    let mut temp_file = NamedTempFile::new().expect("Failed to create temp file");
+    writeln!(temp_file, "192.168.0.0/16").unwrap();
+    writeln!(temp_file, "192.168.1.0/24").unwrap();
+    writeln!(temp_file, "192.168.1.1").unwrap();
+    temp_file.flush().unwrap();
 
-    let (stdout, stderr, exit_code) = run_cli_with_input("", &["-f", test_file]);
-
-    // Clean up
-    fs::remove_file(test_file).ok();
+    let (stdout, stderr, exit_code) =
+        run_cli_with_input("", &["-f", temp_file.path().to_str().unwrap()]);
 
     assert_eq!(
         exit_code, 0,
@@ -233,4 +230,3 @@ fn test_cli_version_flag() {
         "Version should contain program name"
     );
 }
-

@@ -2,7 +2,7 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
 
-/// Parses a stringinto an `IpNet`.
+/// Parses a string into an `IpNet`.
 ///
 /// This function can parse a string that is either in CIDR notation
 /// (e.g., "10.1.1.0/24" or "2001:db8::/32"), or a single IP address

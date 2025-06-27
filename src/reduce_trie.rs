@@ -3,12 +3,14 @@ use std::collections::HashMap;
 use ipnet::IpNet;
 use rayon::prelude::*;
 
+/// A node in the prefix trie.
 #[derive(Default)]
 struct Node {
     children: [Option<Box<Node>>; 2],
     prefix: Option<IpNet>,
 }
 
+/// A table for a specific IP family (IPv4 or IPv6)
 struct Table {
     root: Node,
     hosts: Vec<IpNet>,
@@ -65,14 +67,11 @@ impl ReduceTrie {
             let bit = get_bit(&prefix, pos) as usize;
 
             if node.prefix.is_some() {
-                // the prefix is alredy covered
+                // the prefix is already covered
                 return;
             }
 
-            if node.children[bit].is_none() {
-                node.children[bit] = Some(Box::default());
-            }
-            node = node.children[bit].as_mut().unwrap();
+            node = node.children[bit].get_or_insert_with(Box::default);
         }
 
         node.prefix = Some(prefix);
@@ -102,6 +101,7 @@ impl ReduceTrie {
         false
     }
 
+    /// Returns all prefixes left after reduction.
     pub fn get_all_prefixes(&self) -> Vec<IpNet> {
         let mut result = Vec::new();
 
