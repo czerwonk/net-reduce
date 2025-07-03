@@ -4,7 +4,7 @@ use std::str;
 
 fn run_cli_with_input(input: &str, args: &[&str]) -> (String, String, i32) {
     let mut cmd = Command::new("cargo");
-    cmd.args(&["run", "--"])
+    cmd.args(["run", "--"])
         .args(args)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -37,8 +37,7 @@ fn test_cli_basic_reduction_from_stdin() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let lines: Vec<&str> = stdout.trim().lines().collect();
@@ -54,8 +53,7 @@ fn test_cli_json_output_format() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let json: serde_json::Value =
@@ -74,8 +72,7 @@ fn test_cli_yaml_output_format() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let yaml: serde_yaml::Value =
@@ -104,8 +101,7 @@ fn test_cli_with_file_input() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let lines: Vec<&str> = stdout.trim().lines().collect();
@@ -119,8 +115,7 @@ fn test_cli_empty_input() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
     assert_eq!(stdout.trim(), "", "Empty input should produce empty output");
 }
@@ -132,8 +127,7 @@ fn test_cli_invalid_input() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let lines: Vec<&str> = stdout.trim().lines().collect();
@@ -148,8 +142,7 @@ fn test_cli_ipv6_addresses() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let lines: Vec<&str> = stdout.trim().lines().collect();
@@ -165,8 +158,7 @@ fn test_cli_mixed_ipv4_ipv6() {
 
     assert_eq!(
         exit_code, 0,
-        "CLI should exit successfully. stderr: {}",
-        stderr
+        "CLI should exit successfully. stderr: {stderr}"
     );
 
     let lines: Vec<&str> = stdout.trim().lines().collect();
@@ -195,7 +187,7 @@ fn test_cli_invalid_output_format() {
 #[test]
 fn test_cli_help_flag() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "--help"])
+        .args(["run", "--", "--help"])
         .output()
         .expect("Failed to execute command");
 
@@ -217,7 +209,7 @@ fn test_cli_help_flag() {
 #[test]
 fn test_cli_version_flag() {
     let output = Command::new("cargo")
-        .args(&["run", "--", "--version"])
+        .args(["run", "--", "--version"])
         .output()
         .expect("Failed to execute command");
 

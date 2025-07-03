@@ -17,7 +17,7 @@ fn main() -> ExitCode {
     let lines: Vec<String> = match read_input(args) {
         Ok(lines) => lines,
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             return ExitCode::FAILURE;
         }
     };
@@ -26,7 +26,7 @@ fn main() -> ExitCode {
 
     let w = std::io::stdout();
     if let Err(e) = output_format.write(reduced, w) {
-        eprintln!("{}", e);
+        eprintln!("{e}");
         return ExitCode::FAILURE;
     }
 

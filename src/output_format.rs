@@ -23,7 +23,7 @@ impl OutputFormat {
     fn write_json<W: Write>(&self, prefixes: Vec<String>, mut w: W) -> Result<()> {
         let json = serde_json::to_string(&prefixes)
             .with_context(|| "failed to serialize prefixes to JSON")?;
-        writeln!(w, "{}", json).with_context(|| "failed to write output")?;
+        writeln!(w, "{json}").with_context(|| "failed to write output")?;
 
         Ok(())
     }
@@ -31,14 +31,14 @@ impl OutputFormat {
     fn write_yaml<W: Write>(&self, prefixes: Vec<String>, mut w: W) -> Result<()> {
         let yaml = serde_yaml::to_string(&prefixes)
             .with_context(|| "failed to serialize prefixes to YAML")?;
-        writeln!(w, "{}", yaml).with_context(|| "failed to write output")?;
+        writeln!(w, "{yaml}").with_context(|| "failed to write output")?;
 
         Ok(())
     }
 
     fn write_list<W: Write>(&self, prefixes: Vec<String>, mut w: W) -> Result<()> {
         for prefix in prefixes {
-            writeln!(w, "{}", prefix)?;
+            writeln!(w, "{prefix}")?;
         }
 
         Ok(())
