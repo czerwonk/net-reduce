@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 ipnet = "2.11.0"
-rayon = "1.10.0"
+rayon = "1.11.0"
 
 anyhow = { version = "1.0.98", optional = true }
 clap = { version = "4.5.40", features = ["derive"], optional = true }
