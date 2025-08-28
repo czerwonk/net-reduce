@@ -20,11 +20,10 @@ pub fn from_str(s: &str) -> Option<IpNet> {
         return Some(ip);
     }
 
-    if s.contains(":") {
-        if let Ok(ip) = s.parse::<Ipv6Addr>() {
+    if s.contains(":")
+        && let Ok(ip) = s.parse::<Ipv6Addr>() {
             return ipv6_to_ipnet(ip);
         }
-    }
 
     if let Ok(ip) = s.parse::<Ipv4Addr>() {
         return ipv4_to_ipnet(ip);
