@@ -9,24 +9,23 @@
 
 rustPlatform.buildRustPackage {
   pname = "net-reduce";
-  version = "0.1.2";
+  version = "0.1.4";
 
   src = lib.cleanSource ./.;
 
-  cargoHash = "sha256-vceHJkCYfyEDQrVFTNfpIFDKoUL0n2rZBNChgkaEffg=";
+  cargoHash = "sha256-X1AwVyhRcDv7lZeTftp57lnvBsXYbvbE/jr5SoNKieo=";
 
   nativeBuildInputs = [
     pkg-config
   ];
 
-  buildInputs =
-    [
-      openssl
-    ]
-    ++ lib.optionals stdenv.isDarwin [
-      darwin.apple_sdk.frameworks.Security
-      darwin.apple_sdk.frameworks.SystemConfiguration
-    ];
+  buildInputs = [
+    openssl
+  ]
+  ++ lib.optionals stdenv.isDarwin [
+    darwin.apple_sdk.frameworks.Security
+    darwin.apple_sdk.frameworks.SystemConfiguration
+  ];
 
   meta = with lib; {
     description = "Simple tool for reducing (removing more specifics) CIDR/IP addresses from standard input";
