@@ -9,11 +9,11 @@
 
 rustPlatform.buildRustPackage {
   pname = "net-reduce";
-  version = "0.1.4";
+  version = "0.2.0";
 
   src = lib.cleanSource ./.;
 
-  cargoHash = "sha256-X1AwVyhRcDv7lZeTftp57lnvBsXYbvbE/jr5SoNKieo=";
+  cargoLock.lockFile = ./Cargo.lock;
 
   nativeBuildInputs = [
     pkg-config
