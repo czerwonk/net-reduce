@@ -81,4 +81,21 @@ mod tests {
 
         assert_eq!(expected, result);
     }
+
+    #[test]
+    fn test_reduce_cidrs_deduplicates_identical_hosts() {
+        let lines = vec![
+            "10.0.0.1".to_string(),
+            "10.0.0.1".to_string(),
+            "10.0.0.1/32".to_string(),
+        ];
+
+        let result = reduce_cidrs(lines);
+
+        assert_eq!(
+            vec!["10.0.0.1/32".to_string()],
+            result,
+            "duplicate host entries (plain IP and /32 CIDR) must collapse into a single result"
+        );
+    }
 }

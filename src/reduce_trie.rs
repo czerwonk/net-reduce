@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use ipnet::IpNet;
 use rayon::prelude::*;
@@ -50,6 +50,9 @@ impl ReduceTrie {
         for prefix in net_prefixes {
             Self::insert_into_tree(&mut root, prefix);
         }
+
+        let mut seen = HashSet::new();
+        let host_prefixes: Vec<_> = host_prefixes.into_iter().filter(|p| seen.insert(*p)).collect();
 
         let hosts = host_prefixes
             .into_par_iter()
