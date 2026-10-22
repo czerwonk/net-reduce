@@ -8,8 +8,8 @@ ipnet = "2.12.2"
 rayon = "1.12.0"
 
 anyhow = { version = "1.0.104", optional = true }
-clap = { version = "4.6.6", features = ["derive"], optional = true }
-serde_json = { version = "1.0.151", optional = true }
+clap = { version = "4.6.7", features = ["derive"], optional = true }
+serde_json = { version = "1.0.154", optional = true }
 serde_yaml = { version = "0.9.34", optional = true }
 
 [dev-dependencies]
